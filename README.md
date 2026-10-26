@@ -1,6 +1,6 @@
 # 二阶机械系统的 PID 闭环仿真
 
-本目录只使用基础 MATLAB（`ode45`、`odeset`、`roots`、`plot`），不依赖 Control System Toolbox，不使用 Simulink。所有文件均为新建；项目外的 HyperFrames 文件未改动，也没有初始化 Git 仓库。
+本目录只使用基础 MATLAB（`ode45`、`odeset`、`roots`、`plot`），不依赖 Control System Toolbox 且未使用 Simulink。文件均为新建，项目外的 HyperFrames 文件未改动。仿真本身不依赖 Git；版本管理仅用于备份与公开托管。
 
 ## 1. 模型
 
