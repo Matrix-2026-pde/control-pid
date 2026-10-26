@@ -17,7 +17,7 @@
 ## 技术选型
 
 - MATLAB 基础函数：`ode45`、`odeset`、`roots`、`plot`。
-- 不使用 Control System Toolbox、Simulink、Git。
+- 不使用 Control System Toolbox、Simulink；Git 只用于版本管理，不参与仿真。
 - 数值容差：`RelTol=1e-8`、`AbsTol=1e-10`。
 - 运行方式：MATLAB 中 `run_comparison` / `run_disturbance`；验证用 `verify_model` / `verify_disturbance`；批量可用 `matlab -batch`。
 
@@ -32,6 +32,7 @@
 7. 第三阶段抗饱和采用 clamping（饱和且误差同向时冻结积分）；back-calculation 未纳入本轮主实验。控制力、饱和和积分导数统一由 `pid_control_sat.m` 实现。
 8. 指标有效性只表示有限采样记录在指定误差带精度下支持位置稳态估计，不证明未来或渐近收敛。判据、原因码和运行方式见 `README.md` §4.1。
 9. 时间插值不改变积分输出和有效性判据；不用增密样本替代有效性证据。`peak_time` 和 `time_method` 为新增字段，旧无速度调用使用线性插值；连续数值解 `deval` 仅作为方案对照。
+10. Git 只做版本管理与公开备份，不参与仿真；本机个人文件（安装汇报、`.claude/settings.local.json`）不进入版本库，规则见 `.gitignore`。实验结果仍以 `README.md` 表格为准。
 
 ## 已知问题 / 限制
 
@@ -40,7 +41,7 @@
 - 无噪声、非线性摩擦、参数不确定性。
 - 无斜坡/正弦扰动，只做了常值扰动。
 - 指标仍受积分误差、插值、窗口及相对误差带分辨率限制；基线 Refine=1 的尾段样本不足会保持无效。扰动后的独立恢复时间仍按原采样算法计算。
-- 不是 Git 仓库，无法用 git 历史恢复上下文；依赖本文件与 `events/`。
+- 已启用 Git，公开仓库 `github.com/Matrix-2026-pde/control-pid`；历史只有初始提交，跨会话上下文仍以本文件与 `events/` 为准。
 - MATLAB 桌面退出偶发 `0xc0000374`，计算本身正常。
 
 ## 下一步
