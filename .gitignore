@@ -1,0 +1,7 @@
+# 本机个人文件：含本地用户名／绝对路径／进程信息，不进入公开仓库
+billion-context-安装汇报.md
+.claude/settings.local.json
+
+# MATLAB 编辑器自动保存与临时文件
+*.asv
+*.autosave
