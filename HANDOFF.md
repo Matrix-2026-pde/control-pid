@@ -50,3 +50,28 @@ verify_saturation
 有限数值记录上的插值极值／交点不等于严格连续时间证明，也不保证未来行为。积分误差、非光滑切换、平坦交点及尾段估计仍限制精度；不能将实测纳秒级差异宣传为普遍误差保证。未运行图形展示入口、视觉验收、正式性能测试或覆盖率报告。
 
 本任务没有未完成项。后续如需改进扰动 recovery_time，应独立立项，保留其相对参考值和扰动时刻的定义，先建立对应独立参考；不要顺便改变本次稳态判据。
+
+## Simulink PID-15 基线模型
+
+日期：2026-10-27。新增 `pid_baseline_simulink.slx` 与 `build_and_verify_simulink_pid_baseline.m`。模型使用显式 Step、Sum、Gain、Integrator 和 To Workspace 模块，控制律为 `10*(r-x)+15*x3-3*v`，对象为 `x''=(u-v-4*x)`；初始状态全零，StopTime 30 s，ode45，RelTol 1e-8，AbsTol 1e-10。微分项直接使用测量速度。
+
+MATLAB R2022b / Simulink 10.6 中实际运行构建脚本。由于 Simulink 与 MATLAB ode45 的内部步选择不同，模型保存为 `MaxStep=0.005` 以控制比较成本；统一 30001 点 pchip 比较得到：6006 个 Simulink 输出样本、1341 个 MATLAB 样本，最大位置／速度／控制力差分别为 `6.791e-06`、`3.127e-05`、`4.948e-05`；稳态位置分别为 `1.000000000000` 与 `1.000000000001`。脚本阈值为位置／速度／控制力 2e-3、稳态位置 2e-4，实际差异远低于阈值。Code Analyzer 对脚本无消息。
+
+首次以模型默认最大步长运行时差异为 `1.615e-04 / 1.536e-03 / 1.406e-03`，仍通过工程阈值；随后将模型 MaxStep 设为 0.005 并再次运行，取得上面的最终结果。脚本若发现已有模型只加载并验证，不覆盖；删除或改名后可重新生成。
+
+未修改 MATLAB PID 源码、指标、历史实验或配置；未运行图形展示入口。模型输出是 Structure With Time，脚本会检查非有限值和三条轨迹差异，失败时抛出明确断言。
+
+## 10 s 常值扰动 Simulink 对照
+
+日期：2026-10-27。新增 `pid_disturbance_simulink.slx` 与 `build_and_verify_simulink_pid_disturbance.m`。模型保留显式 PID-15 闭环结构，加入 `Step(Time=10, After=-4)` 外力；脚本逐次设置 P、PD、PID-15 的 `[Kp Ki Kd]`，并与 `simulate_disturbance` 的分段 MATLAB 参考比较。
+
+MATLAB R2022b / Simulink 10.6 实际运行结果（Simulink `MaxStep=0.005`，统一 30001 点 pchip）如下：P 的最大位置／速度／控制力差为 `1.224e-05 / 5.512e-05 / 1.224e-04`，PD 为 `3.952e-06 / 1.297e-05 / 1.340e-04`，PID-15 为 `6.791e-06 / 3.127e-05 / 4.948e-05`。三组扰动前位置差分别为 `1.224e-05 / 3.952e-06 / 6.791e-06`，扰动后分别为 `4.780e-06 / 3.464e-06 / 3.458e-06`，均通过脚本的 2e-3 工程阈值。
+
+MATLAB 后段稳态位置：P `0.428570562`、PD `0.428571429`、PID-15 `1.000000000`；对应 Simulink 值相同到输出精度。P/PD 因无积分无法回到参考带，恢复时间为 NaN；PID-15 恢复时间为 `1.70349 s`（沿用项目原有采样定义）。`verify_disturbance.m` 也实际通过。
+## Simulink 执行器饱和与 clamping
+
+2026-10-27 新增并实际运行 `pid_saturation_simulink.slx` 与 `build_and_verify_simulink_pid_saturation.m`。模型包含 G1 理想执行器、G2 饱和无抗积分、G3 饱和 clamping 三个并行分支；G3 使用原生 Product/Relational Operator/Switch 实现 `(u_des-u_act)*e > 0` 时 `dx3=0`。
+
+模型设置为 MATLAB R2022b / Simulink 10.6、ode45、RelTol=1e-8、AbsTol=1e-10、MaxStep=0.005、30 s。三组位置/速度/积分状态最大差异：G1 `[4.464e-6,5.103e-5,4.397e-6]`，G2 `[3.517e-6,5.758e-5,6.539e-6]`，G3 `[3.517e-6,3.359e-5,6.108e-4]`，均通过 2e-3 状态阈值。G3 `u_des/u_act` 最大差异为 `4.141e-3/5.830e-3`，记录为非光滑切换数值限制，未宣称控制信号完全一致。
+
+实际执行：新建脚本静态检查 0 条问题；模型保存并运行成功；新脚本验证通过；新脚本直接检查 Simulink G3 饱和推动区间的 `max|dx3|=0`；`verify_saturation.m` 全部通过。原 MATLAB 指标 G1/G2/G3：rise `0.4639/0.5290/0.6281 s`，overshoot `24.1931/33.2519/8.2636 %`，settling `2.6265/3.4735/2.7488 s`，IAE `0.5980/0.7779/0.6087`；饱和时间 `G2=0.5948 s`、`G3=0.2696 s`，G3 首次退饱和时 `x3=0`。

@@ -57,3 +57,8 @@
 - 当前任务：`TASK.md`
 - 事件日志：`events/`
 - 协作与记忆规则：`AGENTS.md`
+# 2026-10-27 Simulink 饱和模型
+
+- [x] 新增并验证 `pid_saturation_simulink.slx` 与 `build_and_verify_simulink_pid_saturation.m`。
+- [x] G1/G2/G3 位置、速度、积分状态与 MATLAB 参考在 2e-3 内一致；原 `verify_saturation.m` 通过。
+- [ ] G3 非光滑切换处的 `u_des/u_act` 峰值差异仍需作为数值限制保留，未扩大验收阈值。
