@@ -22,9 +22,9 @@
 ## 项目速览
 
 - 目标：二阶质量-弹簧-阻尼系统的 PID 闭环仿真与教学式验证。
-- 技术栈：基础 MATLAB（`ode45`、`odeset`、`roots`、`plot`），不依赖 Control System Toolbox，不用 Simulink。
+- 技术栈：基础实验使用 MATLAB（`ode45`、`odeset`、`roots`、`plot`），不依赖 Control System Toolbox；仓库另含需要 Simulink 10.6 的独立对照模型与构建脚本。
 - 当前进度：第一阶段六组增益对比、第二阶段常值扰动、第三阶段执行器饱和 + clamping 均已完成；边界与数据见 `PROJECT.md` 和 `README.md` §12。
-- 详细模型、公式、实测数据、验证记录：见 `README.md`。
+- 首页展示入口见 `README.md`；模型与实验见 `docs/model-and-experiments.md`，指标与验证见 `docs/metrics-and-validation.md`，Simulink 边界见 `docs/simulink-comparison.md`，复现命令见 `docs/reproducibility.md`；原始完整 README 见 `docs/archive/`。
 
 ## 完成标准
 
